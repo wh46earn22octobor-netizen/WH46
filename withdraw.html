@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,25 +21,39 @@ padding-bottom:80px;
 }
 
 .header{
+position:relative;
 display:flex;
 justify-content:center;
 align-items:center;
-gap:10px;
 margin-bottom:20px;
 }
 
-.telegram-btn{
+.support-btn{
+position:absolute;
+right:0;
+top:50%;
+transform:translateY(-50%);
+display:flex;
+flex-direction:column;
+align-items:center;
+text-decoration:none;
+}
+
+.support-icon{
 width:32px;
 height:32px;
 border-radius:50%;
-background:#229ED9;
+background:#2563eb;
 display:flex;
 align-items:center;
 justify-content:center;
-text-decoration:none;
+font-size:16px;
+}
+
+.support-text{
+font-size:10px;
 color:white;
-font-size:18px;
-font-weight:bold;
+margin-top:2px;
 }
 
 .card{
@@ -114,9 +127,11 @@ margin-top:10px;
 <div class="header">
 <h2>💸 Withdraw</h2>
 
-<a href="https://t.me/WH46mk" target="_blank" class="telegram-btn" title="Customer Care">
-✈
+<a href="https://t.me/wh46ml" target="_blank" class="support-btn">
+<div class="support-icon">💬</div>
+<div class="support-text">Support</div>
 </a>
+
 </div>
 
 <div class="card">
