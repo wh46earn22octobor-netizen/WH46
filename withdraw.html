@@ -1,1 +1,176 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdraw</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#0f172a;
+color:white;
+padding:20px;
+padding-bottom:80px;
+}
+
+.header{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px;
+margin-bottom:20px;
+}
+
+.telegram-btn{
+width:32px;
+height:32px;
+border-radius:50%;
+background:#229ED9;
+display:flex;
+align-items:center;
+justify-content:center;
+text-decoration:none;
+color:white;
+font-size:18px;
+font-weight:bold;
+}
+
+.card{
+background:#1e293b;
+padding:20px;
+border-radius:15px;
+margin-bottom:15px;
+}
+
+h2{
+text-align:center;
+}
+
+.balance{
+text-align:center;
+font-size:28px;
+color:#22c55e;
+font-weight:bold;
+}
+
+.amount-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+margin-top:10px;
+}
+
+.amount-btn{
+background:#111827;
+border:none;
+color:white;
+padding:12px;
+border-radius:10px;
+cursor:pointer;
+}
+
+.amount-btn:hover{
+background:#2563eb;
+}
+
+.input-box{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+}
+
+.submit-btn{
+width:100%;
+padding:14px;
+background:#2563eb;
+border:none;
+color:white;
+border-radius:10px;
+font-size:16px;
+cursor:pointer;
+}
+
+.history-item{
+background:#111827;
+padding:10px;
+border-radius:10px;
+margin-top:10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="header">
+<h2>💸 Withdraw</h2>
+
+<a href="https://t.me/WH46mk" target="_blank" class="telegram-btn" title="Customer Care">
+✈
+</a>
+</div>
+
+<div class="card">
+<p>Current Balance</p>
+<div class="balance">₹0</div>
+</div>
+
+<div class="card">
+<h3>Select Amount</h3>
+
+<div class="amount-grid">
+<button class="amount-btn">₹180</button>
+<button class="amount-btn">₹300</button>
+<button class="amount-btn">₹500</button>
+<button class="amount-btn">₹1000</button>
+<button class="amount-btn">₹2000</button>
+<button class="amount-btn">₹5000</button>
+</div>
+
+</div>
+
+<div class="card">
+<h3>Payment Method</h3>
+
+<select class="input-box">
+<option>UPI ID</option>
+<option>Bank Account</option>
+</select>
+
+<input
+type="text"
+class="input-box"
+placeholder="Enter UPI ID or Bank Details">
+
+</div>
+
+<div class="card">
+<h3>Withdrawal Details</h3>
+<p>Minimum Withdrawal: ₹180</p>
+<p>Fee: 10%</p>
+</div>
+
+<button class="submit-btn">
+Submit Withdrawal Request
+</button>
+
+<div class="card">
+<h3>Withdrawal History</h3>
+
+<div class="history-item">
+No withdrawal yet.
+</div>
+
+</div>
+
+</body>
+</html>
