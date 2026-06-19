@@ -178,13 +178,13 @@ display:none;
 <div id="earningsTab" class="hidden">          
 <div class="earn-card">        
 <h3>Total Earnings</h3>          
-<p>₹0</p>        
+<p id="totalEarnings">₹0</p>        
 <br>        
 <h3>Total Withdrawal</h3>          
-<p>₹0</p>        
+<p id="totalWithdrawal">₹0</p>        
 <br>        
 <h3>Earning History</h3>          
-<p>No history yet.</p>        
+<p id="earningHistory">No history yet.</p>        
 </div>          
 </div>      
 
@@ -205,13 +205,15 @@ display:none;
 <div class="balance-box">          
 <button class="withdraw-btn" onclick="window.location.href='withdraw.html'">Withdraw</button>      
 <p>Current Balance</p>          
-<h2>₹0</h2>          
+<h2 id="userBalance">₹0</h2>          
 </div>      
 <div class="profile-card">    
 <p><strong>User Name:</strong> <span id="userName">Loading...</span></p>    
 <p><strong>Gmail:</strong> <span id="userEmail">Loading...</span></p>    
 <p><strong>User ID:</strong> <span id="userId">Loading...</span></p>    
-<p><strong>Completed Tasks:</strong> 0</p>    
+<p><strong>Completed Tasks:</strong>
+<span id="completedTasks">0</span>
+</p>    
 </div>      
 <div class="small-box" id="addCardBtn">➕ Add Card</div>        
 <div id="addOptions" class="hidden">          
@@ -289,31 +291,92 @@ addOptions.classList.add("hidden");
 });
 </script>      
 
-<!-- Firebase Auth Script -->
+<!-- Firebase Auth and Firestore Script -->
 <script type="module">  
-import { auth } from "./firebase.js";  
-import {
-onAuthStateChanged,
-signOut
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-
-onAuthStateChanged(auth, (user) => {
-  if(user){
-    document.getElementById("userEmail").textContent = user.email || "No Email";
-    document.getElementById("userId").textContent = user.uid;
-    const userName = user.email.split("@")[0];
-    document.getElementById("userName").textContent = userName;
-  }
-});
-
-document.querySelector(".logout").addEventListener("click", async () => {
-  try{
-    await signOut(auth);
-    window.location.href = "login.html";
-  }catch(error){
-    alert(error.message);
-  }
-});
+import { auth, db } from "./firebase.js";  
+  
+import {  
+onAuthStateChanged,  
+signOut  
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";  
+  
+import {  
+doc,  
+getDoc  
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";  
+  
+onAuthStateChanged(auth, async (user) => {  
+  
+if(user){  
+  
+document.getElementById("userEmail").textContent =  
+user.email || "No Email";  
+  
+document.getElementById("userId").textContent =  
+user.uid;  
+  
+const userName =  
+user.email.split("@")[0];  
+  
+document.getElementById("userName").textContent =  
+userName;  
+  
+try{  
+  
+const userRef =  
+doc(db,"users",user.uid);  
+  
+const userSnap =  
+await getDoc(userRef);  
+  
+if(userSnap.exists()){  
+  
+const data = userSnap.data();  
+  
+document.getElementById("userBalance").textContent =  
+"₹" + (data.balance || 0);  
+  
+document.getElementById("completedTasks").textContent =  
+data.completedTasks || 0;  
+  
+document.getElementById("totalEarnings").textContent =  
+"₹" + (data.totalEarnings || 0);  
+  
+document.getElementById("totalWithdrawal").textContent =  
+"₹" + (data.totalWithdrawal || 0);  
+  
+document.getElementById("earningHistory").textContent =  
+data.earningHistory || "No history yet.";  
+  
+}  
+  
+}catch(error){  
+  
+console.log(error);  
+  
+}  
+  
+}  
+  
+});  
+  
+document.querySelector(".logout")  
+.addEventListener("click", async ()=>{  
+  
+try{  
+  
+await signOut(auth);  
+  
+window.location.href =  
+"login.html";  
+  
+}catch(error){  
+  
+alert(error.message);  
+  
+}  
+  
+});  
 </script>    
 
 </body>
