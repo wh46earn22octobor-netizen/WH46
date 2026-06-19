@@ -136,7 +136,7 @@ margin-top:10px;
 
 <div class="card">
 <p>Current Balance</p>
-<div class="balance">₹0</div>
+<div class="balance" id="currentBalance">₹0</div>
 </div>
 
 <div class="card">
@@ -151,18 +151,24 @@ margin-top:10px;
 <button class="amount-btn">₹5000</button>
 </div>
 
+<input
+type="hidden"
+id="selectedAmount"
+value="0">
+
 </div>
 
 <div class="card">
 <h3>Payment Method</h3>
 
-<select class="input-box">
-<option>UPI ID</option>
-<option>Bank Account</option>
+<select class="input-box" id="paymentMethod">
+<option value="UPI">UPI ID</option>
+<option value="BANK">Bank Account</option>
 </select>
 
 <input
 type="text"
+id="paymentValue"
 class="input-box"
 placeholder="Enter UPI ID or Bank Details">
 
@@ -174,18 +180,165 @@ placeholder="Enter UPI ID or Bank Details">
 <p>Fee: 10%</p>
 </div>
 
-<button class="submit-btn">
+<button
+class="submit-btn"
+id="withdrawBtn">
 Submit Withdrawal Request
 </button>
 
 <div class="card">
 <h3>Withdrawal History</h3>
 
+<div id="withdrawHistory">
 <div class="history-item">
 No withdrawal yet.
 </div>
+</div>
 
 </div>
+
+<!-- Amount selection logic script -->
+<script>
+let selectedAmount = 0;
+
+document.querySelectorAll(".amount-btn")
+.forEach(btn=>{
+
+btn.addEventListener("click",()=>{
+
+document.querySelectorAll(".amount-btn")
+.forEach(b=>b.style.background="#111827");
+
+btn.style.background="#2563eb";
+
+selectedAmount =
+parseInt(
+btn.innerText.replace("₹","")
+);
+
+document.getElementById("selectedAmount").value =
+selectedAmount;
+
+});
+
+});
+</script>
+
+<!-- Firebase integration script -->
+<script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+import {
+doc,
+getDoc,
+collection,
+addDoc
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+let currentUser = null;
+let currentBalance = 0;
+
+onAuthStateChanged(auth, async(user)=>{
+
+if(!user) return;
+
+currentUser = user;
+
+const userRef =
+doc(db,"users",user.uid);
+
+const userSnap =
+await getDoc(userRef);
+
+if(userSnap.exists()){
+
+const data =
+userSnap.data();
+
+currentBalance =
+data.balance || 0;
+
+document.getElementById("currentBalance")
+.textContent =
+"₹" + currentBalance;
+
+}
+
+});
+
+document.getElementById("withdrawBtn")
+.addEventListener("click", async()=>{
+
+const amount =
+parseInt(
+document.getElementById("selectedAmount").value
+);
+
+const paymentType =
+document.getElementById("paymentMethod").value;
+
+const paymentValue =
+document.getElementById("paymentValue").value;
+
+if(amount===0){
+
+alert("Select Amount");
+return;
+
+}
+
+if(!paymentValue){
+
+alert("Enter Payment Details");
+return;
+
+}
+
+if(currentBalance < amount){
+
+alert("Insufficient Balance");
+return;
+
+}
+
+try {
+await addDoc(
+collection(db,"withdrawRequests"),
+{
+
+userId:
+currentUser.uid,
+
+gmail:
+currentUser.email,
+
+amount,
+
+paymentType,
+
+paymentValue,
+
+status:"PENDING",
+
+requestDate:
+new Date().toISOString()
+
+}
+
+);
+
+alert("Withdrawal Request Submitted");
+} catch (error) {
+console.error("Error submitting request:", error);
+alert("Failed to submit request. Please try again.");
+}
+
+});
+</script>
 
 </body>
 </html>
