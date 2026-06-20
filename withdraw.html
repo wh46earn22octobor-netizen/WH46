@@ -166,11 +166,12 @@ value="0">
 <option value="BANK">Bank Account</option>
 </select>
 
+<!-- পরিবর্তন ১: readonly করা হয়েছে -->
 <input
 type="text"
 id="paymentValue"
 class="input-box"
-placeholder="Enter UPI ID or Bank Details">
+readonly>
 
 </div>
 
@@ -236,7 +237,10 @@ import {
 doc,
 getDoc,
 collection,
-addDoc
+addDoc,
+query,
+where,
+getDocs
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 let currentUser = null;
@@ -265,6 +269,144 @@ data.balance || 0;
 document.getElementById("currentBalance")
 .textContent =
 "₹" + currentBalance;
+
+}
+
+// UPI Accounts snapshot fetch
+const upiRef =
+doc(db,"upiAccounts",user.uid);
+
+const upiSnap =
+await getDoc(upiRef);
+
+// Bank Accounts snapshot fetch
+const bankRef =
+doc(db,"bankAccounts",user.uid);
+
+const bankSnap =
+await getDoc(bankRef);
+
+// UPI setup logic
+if(upiSnap.exists()){
+
+const data =
+upiSnap.data();
+
+document.getElementById("paymentMethod").innerHTML =
+`<option value="UPI">${data.walletAddress}</option>`;
+
+document.getElementById("paymentValue").value =
+data.walletAddress;
+
+}
+
+// Bank setup logic (পরিবর্তন ২: নতুন লজিক যুক্ত করা হয়েছে)
+if(bankSnap.exists()){
+
+const data =
+bankSnap.data();
+
+document.getElementById("paymentMethod").innerHTML +=
+`<option value="BANK">${data.accountNumber}</option>`;
+
+if(!upiSnap.exists()){
+
+document.getElementById("paymentMethod").value =
+"BANK";
+
+document.getElementById("paymentValue").value =
+data.accountNumber;
+
+}
+
+}
+
+// Dropdown change listener
+document.getElementById("paymentMethod")
+.addEventListener("change",async()=>{
+
+const method =
+document.getElementById("paymentMethod").value;
+
+if(method==="UPI"){
+
+const upiSnap =
+await getDoc(
+doc(db,"upiAccounts",user.uid)
+);
+
+if(upiSnap.exists()){
+
+document.getElementById("paymentValue").value =
+upiSnap.data().walletAddress;
+
+}
+
+}
+
+if(method==="BANK"){
+
+const bankSnap =
+await getDoc(
+doc(db,"bankAccounts",user.uid)
+);
+
+if(bankSnap.exists()){
+
+document.getElementById("paymentValue").value =
+bankSnap.data().accountNumber;
+
+}
+
+}
+
+});
+
+// History retrieval logic
+const historyRef =
+query(
+collection(db,"withdrawRequests"),
+where("userId","==",user.uid)
+);
+
+const historySnap =
+await getDocs(historyRef);
+
+const historyBox =
+document.getElementById("withdrawHistory");
+
+historyBox.innerHTML = "";
+
+historySnap.forEach((withdrawDoc)=>{
+
+const data =
+withdrawDoc.data();
+
+historyBox.innerHTML += `
+
+<div class="history-item">
+
+₹${data.amount}
+
+<br>
+
+Status :
+${data.status}
+
+</div>
+
+`;
+
+});
+
+// History Empty check
+if(historySnap.empty){
+
+historyBox.innerHTML = `
+<div class="history-item">
+No withdrawal yet.
+</div>
+`;
 
 }
 
@@ -330,6 +472,29 @@ new Date().toISOString()
 }
 
 );
+
+// পরিবর্তন ৩: হিস্ট্রি আপডেট করার আগে খালি করার লজিক যুক্ত করা হয়েছে
+if(
+document.getElementById("withdrawHistory")
+.innerText.includes("No withdrawal yet.")
+){
+document.getElementById("withdrawHistory").innerHTML="";
+}
+
+document.getElementById("withdrawHistory")
+.innerHTML += `
+
+<div class="history-item">
+
+₹${amount}
+
+<br>
+
+Status : PENDING
+
+</div>
+
+`;
 
 alert("Withdrawal Request Submitted");
 } catch (error) {
